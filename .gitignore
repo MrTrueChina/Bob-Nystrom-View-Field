@@ -35,9 +35,3 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
-
-# Meta
-*.meta
-
-#Logs
-Logs/
