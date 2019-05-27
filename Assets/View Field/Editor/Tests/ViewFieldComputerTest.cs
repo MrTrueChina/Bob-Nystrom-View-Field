@@ -11,7 +11,7 @@ namespace MtC.Tools.FoV
         [Test]
         public void Compute_Normal()
         {
-            ViewField viewField = ViewFieldComputer.Compute(new VisibleMap(10, 10), new Vector2(5, 5));
+            
         }
     }
 }
