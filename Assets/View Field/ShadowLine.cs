@@ -61,7 +61,7 @@ namespace MtC.Tools.FoV
 
         Shadow GetPreviousOverlappingShadow(int insertIndex, Shadow newShadow)
         {
-            if(insertIndex > 0)
+            if (insertIndex > 0)
             {
                 Shadow prevousShadow = _shadows[insertIndex - 1];
                 if (prevousShadow.end >= newShadow.start)
@@ -72,7 +72,7 @@ namespace MtC.Tools.FoV
 
         Shadow GetNextOverlappingShadow(int insertIndex, Shadow newShadow)
         {
-            if(insertIndex < _shadows.Count)
+            if (insertIndex < _shadows.Count)
             {
                 Shadow nextShadow = _shadows[insertIndex]; // 获取后一个重叠的阴影时新的阴影还没有插入列表，所以插入下标指向的就是后一个阴影
                 if (nextShadow.start <= newShadow.end)
@@ -144,7 +144,11 @@ namespace MtC.Tools.FoV
              *  返回投影
              */
             float topLeft = (sideStep * 2 - 1) / (forwardStep * 2 + 1f); // 注意这个2是float，不然就是两个int的除法，直接得到0
-            float bottomRight = (sideStep * 2 + 1) / (forwardStep * 2 - 1f);
+            
+            //这里有一个特殊情况：y=0
+            //假设y坐标是0，计算结果就变成了负数，负数在设计上是靠左的
+            //TODO：注释
+            float bottomRight = (sideStep * 2 + 1) / Mathf.Max((forwardStep * 2 - 1f), 0);
             return new Shadow(topLeft, bottomRight);
         }
 
@@ -162,6 +166,18 @@ namespace MtC.Tools.FoV
                 if (shadowInList.Contions(shadow))
                     return true;
             return false;
+        }
+
+        public override string ToString()
+        {
+            string str = "[";
+
+            foreach (Shadow shadow in _shadows)
+                str += shadow.ToString() + ",";
+
+            str = str.Substring(0, str.Length > 1 ? str.Length - 1 : str.Length);
+
+            return str + "]";
         }
     }
 }

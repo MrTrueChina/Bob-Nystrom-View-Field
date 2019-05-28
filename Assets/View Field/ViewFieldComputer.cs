@@ -8,10 +8,6 @@ namespace MtC.Tools.FoV
         /// 在八分圆的45°交界处，如果两个墙角对角在一起，将会由于计算时无法超出八分圆得知还有一个对角墙导致视线穿过对角位置。加一格额外的检测就可以解决这个问题
         /// </summary>
         const int LINE_PATCH = 1;
-        /// <summary>
-        /// 计算单行视野时，如果计算观察者所在位置，将会带来观察者自身对视线的遮挡等问题，用这个属性修改单行计算的起点，回避这些问题
-        /// </summary>
-        const int LINE_START = 1;
 
         ViewField _viewField;
         VisibleMap _visibleMap;
@@ -58,6 +54,8 @@ namespace MtC.Tools.FoV
         void ComputeAndMergeAnOctant(Octant octant)
         {
             /*
+             *  计算并合并第一行（因为要考虑到观察者的影响但又不能过度消耗计算量）
+             * 
              *  向前走直到地图边界
              *      if(阴影没有完全覆盖八分角)
              *          计算并合并每一行
@@ -67,13 +65,25 @@ namespace MtC.Tools.FoV
             bool isFullShadow = false;
             ShadowLine shadowLine = new ShadowLine();
 
-            for (int mainStep = LINE_START; _visibleMap.Contains(octant.GetPosition(mainStep, 0)); mainStep++)
+            ComputeAndMergeStartLine(octant, shadowLine); // 因为观察者自身对视线的遮挡会导致各种问题，所以单独拿出一行来处理
+
+            for (int mainStep = 1; _visibleMap.Contains(octant.GetPosition(mainStep, 0)); mainStep++) // 第一行单独处理了，这里从距离1开始
                 if (!isFullShadow)
                     isFullShadow = ComputeAndMergeALineAndGetIsFullShadow(octant, mainStep, shadowLine);
                 else
                     FillALineShadow(octant, mainStep);
-            if (isFullShadow)
-                Debug.Log(isFullShadow);
+        }
+
+        void ComputeAndMergeStartLine(Octant octant, ShadowLine shadowLine)
+        {
+            int mainStep = 0;
+            Vector2 currentPosition;
+            for (int sideStep = 1; sideStep <= LINE_PATCH && _visibleMap.Contains(currentPosition = octant.GetPosition(mainStep, sideStep)); sideStep++) // 边缘方向从1开始，跳过观察者所在的位置
+            {
+                Shadow projection = ShadowLine.GetQuadProjection(mainStep, sideStep);
+                DrawShadow(shadowLine, currentPosition, projection);
+                UpdateShadowLine(currentPosition, shadowLine, projection);
+            }
         }
 
         bool ComputeAndMergeALineAndGetIsFullShadow(Octant octant, int mainStep, ShadowLine shadowLine)
@@ -94,6 +104,7 @@ namespace MtC.Tools.FoV
                 DrawShadow(shadowLine, currentPosition, projection);
                 UpdateShadowLine(currentPosition, shadowLine, projection);
             }
+
             return shadowLine.IsFullShadow();
         }
 

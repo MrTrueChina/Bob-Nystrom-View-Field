@@ -29,5 +29,10 @@ namespace MtC.Tools.FoV
         {
             return _start <= shadow._start && _end >= shadow._end;
         }
+
+        public override string ToString()
+        {
+            return "(" + _start + "," + _end + ")";
+        }
     }
 }
