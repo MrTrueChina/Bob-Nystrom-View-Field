@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class Displayer : MonoBehaviour
 {
-
     /*
      *  需要能设置和移除墙的方法
      *  需要能显示可见和不可见、墙和不是墙的方法

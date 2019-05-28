@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace MtC.Tools.FoV
@@ -146,8 +145,8 @@ namespace MtC.Tools.FoV
             float topLeft = (sideStep * 2 - 1) / (forwardStep * 2 + 1f); // 注意这个2是float，不然就是两个int的除法，直接得到0
             
             //这里有一个特殊情况：y=0
-            //假设y坐标是0，计算结果就变成了负数，负数在设计上是靠左的
-            //TODO：注释
+            //假设y坐标是0，计算结果就变成了负数，负数在设计上是靠左的，这会导致后续的阴影计算连续出错
+            //为了解决这个问题，将分母限制到最小为0，float除零会得到无穷大，这样就和设计相符了
             float bottomRight = (sideStep * 2 + 1) / Mathf.Max((forwardStep * 2 - 1f), 0);
             return new Shadow(topLeft, bottomRight);
         }
